@@ -16,12 +16,11 @@
 
 package com.google.zxing.client.android.result;
 
+import barcodescanner.xservices.nl.barcodescanner.R;
 import com.google.zxing.client.result.EmailAddressParsedResult;
 import com.google.zxing.client.result.ParsedResult;
 
 import android.app.Activity;
-
-import barcodescanner.xservices.nl.barcodescanner.R;
 
 /**
  * Handles email addresses.

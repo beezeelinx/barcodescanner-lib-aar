@@ -24,11 +24,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.zxing.client.android.CaptureActivity;
+import barcodescanner.xservices.nl.barcodescanner.R;
 import com.google.zxing.client.android.wifi.WifiConfigManager;
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.WifiParsedResult;
-
-import barcodescanner.xservices.nl.barcodescanner.R;
 
 /**
  * Handles wifi access information.
@@ -62,7 +61,8 @@ public final class WifiResultHandler extends ResultHandler {
   public void handleButtonPress(int index) {
     if (index == 0) {
       WifiParsedResult wifiResult = (WifiParsedResult) getResult();
-      WifiManager wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+      WifiManager wifiManager =
+          (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
       if (wifiManager == null) {
         Log.w(TAG, "No WifiManager available from device");
         return;

@@ -25,17 +25,16 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.google.zxing.Result;
+import barcodescanner.xservices.nl.barcodescanner.R;
 
 import java.util.ArrayList;
-
-import barcodescanner.xservices.nl.barcodescanner.R;
 
 final class HistoryItemAdapter extends ArrayAdapter<HistoryItem> {
 
   private final Context activity;
 
   HistoryItemAdapter(Context activity) {
-    super(activity, R.layout.history_list_item, new ArrayList<HistoryItem>());
+    super(activity, R.layout.history_list_item, new ArrayList<>());
     this.activity = activity;
   }
 

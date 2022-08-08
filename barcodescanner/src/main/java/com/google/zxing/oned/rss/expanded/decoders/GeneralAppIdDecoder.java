@@ -126,7 +126,8 @@ final class GeneralAppIdDecoder {
 
     DecodedInformation lastDecoded = parseBlocks();
     if (lastDecoded != null && lastDecoded.isRemaining()) {
-      return new DecodedInformation(this.current.getPosition(), this.buffer.toString(), lastDecoded.getRemainingValue());
+      return new DecodedInformation(this.current.getPosition(),
+        this.buffer.toString(), lastDecoded.getRemainingValue());
     }
     return new DecodedInformation(this.current.getPosition(), this.buffer.toString());
   }
@@ -184,7 +185,7 @@ final class GeneralAppIdDecoder {
       current.setAlpha();
       current.incrementPosition(4);
     }
-    return new BlockParsedResult(false);
+    return new BlockParsedResult();
   }
 
   private BlockParsedResult parseIsoIec646Block() throws FormatException {
@@ -211,7 +212,7 @@ final class GeneralAppIdDecoder {
 
       current.setAlpha();
     }
-    return new BlockParsedResult(false);
+    return new BlockParsedResult();
   }
 
   private BlockParsedResult parseAlphaBlock() {
@@ -239,7 +240,7 @@ final class GeneralAppIdDecoder {
 
       current.setIsoIec646();
     }
-    return new BlockParsedResult(false);
+    return new BlockParsedResult();
   }
 
   private boolean isStillIsoIec646(int pos) {

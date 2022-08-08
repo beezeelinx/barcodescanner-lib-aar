@@ -17,12 +17,11 @@
 package com.google.zxing.client.android.result;
 
 import com.google.zxing.Result;
+import barcodescanner.xservices.nl.barcodescanner.R;
 import com.google.zxing.client.result.ISBNParsedResult;
 import com.google.zxing.client.result.ParsedResult;
 
 import android.app.Activity;
-
-import barcodescanner.xservices.nl.barcodescanner.R;
 
 /**
  * Handles books encoded by their ISBN values.

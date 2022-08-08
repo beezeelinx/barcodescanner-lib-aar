@@ -20,6 +20,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.Result;
+import com.google.zxing.ResultMetadataType;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.common.BitArray;
 
@@ -52,17 +53,17 @@ public final class CodaBarReader extends OneDReader {
       0x00c, 0x018, 0x045, 0x051, 0x054, 0x015, 0x01A, 0x029, 0x00B, 0x00E, // -$:/.+ABCD
   };
 
-  // minimal number of characters that should be present (inclusing start and stop characters)
+  // minimal number of characters that should be present (including start and stop characters)
   // under normal circumstances this should be set to 3, but can be set higher
   // as a last-ditch attempt to reduce false positives.
   private static final int MIN_CHARACTER_LENGTH = 3;
 
   // official start and end patterns
   private static final char[] STARTEND_ENCODING = {'A', 'B', 'C', 'D'};
-  // some codabar generator allow the codabar string to be closed by every
+  // some Codabar generator allow the Codabar string to be closed by every
   // character. This will cause lots of false positives!
 
-  // some industries use a checksum standard but this is not part of the original codabar standard
+  // some industries use a checksum standard but this is not part of the original Codabar standard
   // for more information see : http://www.mecsw.com/specs/codabar.html
 
   // Keep some instance variables to avoid reallocations
@@ -152,13 +153,16 @@ public final class CodaBarReader extends OneDReader {
       runningCount += counters[i];
     }
     float right = runningCount;
-    return new Result(
+
+    Result result = new Result(
         decodeRowResult.toString(),
         null,
         new ResultPoint[]{
             new ResultPoint(left, rowNumber),
             new ResultPoint(right, rowNumber)},
         BarcodeFormat.CODABAR);
+    result.putMetadata(ResultMetadataType.SYMBOLOGY_IDENTIFIER, "]F0");
+    return result;
   }
 
   private void validatePattern(int start) throws NotFoundException {
@@ -170,7 +174,7 @@ public final class CodaBarReader extends OneDReader {
     // We break out of this loop in the middle, in order to handle
     // inter-character spaces properly.
     int pos = start;
-    for (int i = 0; true; i++) {
+    for (int i = 0; i <= end; i++) {
       int pattern = CHARACTER_ENCODINGS[decodeRowResult.charAt(i)];
       for (int j = 6; j >= 0; j--) {
         // Even j = bars, while odd j = spaces. Categories 2 and 3 are for
@@ -179,9 +183,6 @@ public final class CodaBarReader extends OneDReader {
         sizes[category] += counters[pos + j];
         counts[category]++;
         pattern >>= 1;
-      }
-      if (i >= end) {
-        break;
       }
       // We ignore the inter-character space - it could be of any size.
       pos += 8;
@@ -202,7 +203,7 @@ public final class CodaBarReader extends OneDReader {
 
     // Now verify that all of the stripes are within the thresholds.
     pos = start;
-    for (int i = 0; true; i++) {
+    for (int i = 0; i <= end; i++) {
       int pattern = CHARACTER_ENCODINGS[decodeRowResult.charAt(i)];
       for (int j = 6; j >= 0; j--) {
         // Even j = bars, while odd j = spaces. Categories 2 and 3 are for
@@ -213,9 +214,6 @@ public final class CodaBarReader extends OneDReader {
           throw NotFoundException.getNotFoundInstance();
         }
         pattern >>= 1;
-      }
-      if (i >= end) {
-        break;
       }
       pos += 8;
     }
@@ -238,7 +236,7 @@ public final class CodaBarReader extends OneDReader {
     boolean isWhite = true;
     int count = 0;
     while (i < end) {
-      if (row.get(i) ^ isWhite) { // that is, exactly one is true
+      if (row.get(i) != isWhite) {
         count++;
       } else {
         counterAppend(count);

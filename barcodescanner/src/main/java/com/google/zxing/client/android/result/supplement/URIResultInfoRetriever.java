@@ -20,13 +20,12 @@ import android.content.Context;
 import android.widget.TextView;
 import com.google.zxing.client.android.HttpHelper;
 import com.google.zxing.client.android.history.HistoryManager;
+import barcodescanner.xservices.nl.barcodescanner.R;
 import com.google.zxing.client.result.URIParsedResult;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import barcodescanner.xservices.nl.barcodescanner.R;
 
 final class URIResultInfoRetriever extends SupplementalInfoRetriever {
 

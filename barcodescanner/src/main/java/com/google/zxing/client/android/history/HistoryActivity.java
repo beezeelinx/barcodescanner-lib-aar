@@ -36,7 +36,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
-
 import barcodescanner.xservices.nl.barcodescanner.R;
 
 /**
@@ -118,8 +117,8 @@ public final class HistoryActivity extends ListActivity {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    int i = item.getItemId();
-    if (i == R.id.menu_history_send) {
+    int itemId = item.getItemId();
+    if (itemId == R.id.menu_history_send) {
       CharSequence history = historyManager.buildHistory();
       Parcelable historyFile = HistoryManager.saveHistory(history.toString());
       if (historyFile == null) {
@@ -129,7 +128,7 @@ public final class HistoryActivity extends ListActivity {
         builder.show();
       } else {
         Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:"));
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        intent.addFlags(Intents.FLAG_NEW_DOC);
         String subject = getResources().getString(R.string.history_email_title);
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
         intent.putExtra(Intent.EXTRA_TEXT, subject);
@@ -141,8 +140,7 @@ public final class HistoryActivity extends ListActivity {
           Log.w(TAG, anfe.toString());
         }
       }
-
-    } else if (i == R.id.menu_history_clear_text) {
+    } else if (itemId == R.id.menu_history_clear_text) {
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setMessage(R.string.msg_sure);
       builder.setCancelable(true);
@@ -156,7 +154,6 @@ public final class HistoryActivity extends ListActivity {
       });
       builder.setNegativeButton(R.string.button_cancel, null);
       builder.show();
-
     } else {
       return super.onOptionsItemSelected(item);
     }

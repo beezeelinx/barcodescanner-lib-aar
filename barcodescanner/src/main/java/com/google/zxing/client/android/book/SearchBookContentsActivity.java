@@ -24,8 +24,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -42,7 +40,6 @@ import java.util.regex.Pattern;
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.client.android.HttpHelper;
 import com.google.zxing.client.android.LocaleManager;
-
 import barcodescanner.xservices.nl.barcodescanner.R;
 
 /**
@@ -54,7 +51,7 @@ public final class SearchBookContentsActivity extends Activity {
 
   private static final String TAG = SearchBookContentsActivity.class.getSimpleName();
 
-  private static final Pattern TAG_PATTERN = Pattern.compile("\\<.*?\\>");
+  private static final Pattern TAG_PATTERN = Pattern.compile("<.*?>");
   private static final Pattern LT_ENTITY_PATTERN = Pattern.compile("&lt;");
   private static final Pattern GT_ENTITY_PATTERN = Pattern.compile("&gt;");
   private static final Pattern QUOTE_ENTITY_PATTERN = Pattern.compile("&#39;");
@@ -93,10 +90,6 @@ public final class SearchBookContentsActivity extends Activity {
   public void onCreate(Bundle icicle) {
     super.onCreate(icicle);
 
-    // Make sure that expired cookies are removed on launch.
-    CookieSyncManager.createInstance(this);
-    CookieManager.getInstance().removeExpiredCookie();
-
     Intent intent = getIntent();
     if (intent == null || !Intents.SearchBookContents.ACTION.equals(intent.getAction())) {
       finish();
@@ -104,6 +97,11 @@ public final class SearchBookContentsActivity extends Activity {
     }
 
     isbn = intent.getStringExtra(Intents.SearchBookContents.ISBN);
+    if (isbn == null) {
+      finish();
+      return;
+    }
+
     if (LocaleManager.isBookSearchUrl(isbn)) {
       setTitle(getString(R.string.sbc_name));
     } else {
@@ -182,11 +180,8 @@ public final class SearchBookContentsActivity extends Activity {
         }
         CharSequence content = HttpHelper.downloadViaHttp(uri, HttpHelper.ContentType.JSON);
         return new JSONObject(content.toString());
-      } catch (IOException ioe) {
+      } catch (IOException | JSONException ioe) {
         Log.w(TAG, "Error accessing book search", ioe);
-        return null;
-      } catch (JSONException je) {
-        Log.w(TAG, "Error accessing book search", je);
         return null;
       }
     }

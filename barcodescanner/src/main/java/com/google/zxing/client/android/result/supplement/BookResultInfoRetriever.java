@@ -24,15 +24,13 @@ import android.content.Context;
 import android.widget.TextView;
 import com.google.zxing.client.android.HttpHelper;
 import com.google.zxing.client.android.LocaleManager;
-
+import barcodescanner.xservices.nl.barcodescanner.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import com.google.zxing.client.android.history.HistoryManager;
-
-import barcodescanner.xservices.nl.barcodescanner.R;
 
 /**
  * @author Kamil Kaczmarczyk
@@ -101,7 +99,7 @@ final class BookResultInfoRetriever extends SupplementalInfoRetriever {
     String baseBookUri = "http://www.google." + LocaleManager.getBookSearchCountryTLD(context)
         + "/search?tbm=bks&source=zxing&q=";
 
-    append(isbn, source, newTexts.toArray(new String[newTexts.size()]), baseBookUri + isbn);
+    append(isbn, source, newTexts.toArray(EMPTY_STR_ARRAY), baseBookUri + isbn);
   }
 
 }

@@ -17,13 +17,12 @@
 package com.google.zxing.client.android.result;
 
 import com.google.zxing.Result;
+import barcodescanner.xservices.nl.barcodescanner.R;
 import com.google.zxing.client.result.ExpandedProductParsedResult;
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.ProductParsedResult;
 
 import android.app.Activity;
-
-import barcodescanner.xservices.nl.barcodescanner.R;
 
 /**
  * Handles generic products which are not books.

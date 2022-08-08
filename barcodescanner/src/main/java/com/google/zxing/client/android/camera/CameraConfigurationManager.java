@@ -18,7 +18,6 @@ package com.google.zxing.client.android.camera;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.preference.PreferenceManager;
@@ -35,6 +34,7 @@ import com.google.zxing.client.android.camera.open.OpenCamera;
  * A class which deals with reading, parsing, and setting the camera parameters which are used to
  * configure the camera hardware.
  */
+@SuppressWarnings("deprecation") // camera APIs
 final class CameraConfigurationManager {
 
   private static final String TAG = "CameraConfiguration";
@@ -48,7 +48,7 @@ final class CameraConfigurationManager {
   private Point previewSizeOnScreen;
 
   CameraConfigurationManager(Context context) {
-    this.context = context.getApplicationContext();
+    this.context = context;
   }
 
   /**
@@ -93,20 +93,6 @@ final class CameraConfigurationManager {
       Log.i(TAG, "Front camera overriden to: " + cwRotationFromNaturalToCamera);
     }
 
-    /*
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-    String overrideRotationString;
-    if (camera.getFacing() == CameraFacing.FRONT) {
-      overrideRotationString = prefs.getString(PreferencesActivity.KEY_FORCE_CAMERA_ORIENTATION_FRONT, null);
-    } else {
-      overrideRotationString = prefs.getString(PreferencesActivity.KEY_FORCE_CAMERA_ORIENTATION, null);
-    }
-    if (overrideRotationString != null && !"-".equals(overrideRotationString)) {
-      Log.i(TAG, "Overriding camera manually to " + overrideRotationString);
-      cwRotationFromNaturalToCamera = Integer.parseInt(overrideRotationString);
-    }
-     */
-
     cwRotationFromDisplayToCamera =
         (360 + cwRotationFromNaturalToCamera - cwRotationFromNaturalToDisplay) % 360;
     Log.i(TAG, "Final display orientation: " + cwRotationFromDisplayToCamera);
@@ -139,28 +125,10 @@ final class CameraConfigurationManager {
   }
 
   void setDesiredCameraParameters(OpenCamera camera, boolean safeMode) {
+
     Camera theCamera = camera.getCamera();
-
-    int rotation = context.getApplicationContext().getResources().getConfiguration().orientation;
-
-    WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    Display display = windowManager.getDefaultDisplay();
-    int deviceSpecificRotation = display.getRotation();
-
-    if (rotation == Configuration.ORIENTATION_PORTRAIT) {
-      if (deviceSpecificRotation == Surface.ROTATION_0 || deviceSpecificRotation == Surface.ROTATION_90) {
-        theCamera.setDisplayOrientation(90);
-      } else {
-        theCamera.setDisplayOrientation(270);
-      }
-    } else {
-      // landscape
-      if (deviceSpecificRotation == Surface.ROTATION_180 || deviceSpecificRotation == Surface.ROTATION_270) {
-        theCamera.setDisplayOrientation(180);
-      }
-    }
-
     Camera.Parameters parameters = theCamera.getParameters();
+
     if (parameters == null) {
       Log.w(TAG, "Device error: no camera parameters are available. Proceeding without configuration.");
       return;
@@ -179,7 +147,7 @@ final class CameraConfigurationManager {
     CameraConfigurationUtils.setFocus(
         parameters,
         prefs.getBoolean(PreferencesActivity.KEY_AUTO_FOCUS, true),
-        prefs.getBoolean(PreferencesActivity.KEY_DISABLE_CONTINUOUS_FOCUS, true),
+        prefs.getBoolean(PreferencesActivity.KEY_DISABLE_CONTINUOUS_FOCUS, false),
         safeMode);
 
     if (!safeMode) {
@@ -196,6 +164,10 @@ final class CameraConfigurationManager {
         CameraConfigurationUtils.setFocusArea(parameters);
         CameraConfigurationUtils.setMetering(parameters);
       }
+
+      //SetRecordingHint to true also a workaround for low framerate on Nexus 4
+      //https://stackoverflow.com/questions/14131900/extreme-camera-lag-on-nexus-4
+      parameters.setRecordingHint(true);
 
     }
 
@@ -240,9 +212,9 @@ final class CameraConfigurationManager {
       Camera.Parameters parameters = camera.getParameters();
       if (parameters != null) {
         String flashMode = parameters.getFlashMode();
-        return flashMode != null &&
-            (Camera.Parameters.FLASH_MODE_ON.equals(flashMode) ||
-             Camera.Parameters.FLASH_MODE_TORCH.equals(flashMode));
+        return
+            Camera.Parameters.FLASH_MODE_ON.equals(flashMode) ||
+            Camera.Parameters.FLASH_MODE_TORCH.equals(flashMode);
       }
     }
     return false;
