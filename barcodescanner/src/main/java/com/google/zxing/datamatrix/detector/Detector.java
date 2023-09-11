@@ -39,6 +39,11 @@ public final class Detector {
     rectangleDetector = new WhiteRectangleDetector(image);
   }
 
+  public Detector(BitMatrix image, int initSize, int x, int y) throws NotFoundException {
+    this.image = image;
+    rectangleDetector = new WhiteRectangleDetector(image, initSize, x, y);
+  }
+
   /**
    * <p>Detects a Data Matrix Code in an image.</p>
    *
