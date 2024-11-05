@@ -205,6 +205,11 @@ public final class Intents {
      */
     public static final String ORIENTATION_LOCK = "ORIENTATION_LOCK";
 
+    /**
+     * Set to true if you want to scan GS1 barcodes
+     */
+    public static final String ASSUME_GS1 = "ASSUME_GS1";
+
     private Scan() {
     }
   }

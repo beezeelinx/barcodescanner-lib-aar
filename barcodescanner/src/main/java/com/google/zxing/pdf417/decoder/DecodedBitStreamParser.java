@@ -220,22 +220,38 @@ final class DecodedBitStreamParser {
             case MACRO_PDF417_OPTIONAL_FIELD_SEGMENT_COUNT:
               ECIStringBuilder segmentCount = new ECIStringBuilder();
               codeIndex = numericCompaction(codewords, codeIndex + 1, segmentCount);
-              resultMetadata.setSegmentCount(Integer.parseInt(segmentCount.toString()));
+              try {
+                resultMetadata.setSegmentCount(Integer.parseInt(segmentCount.toString()));
+              } catch (NumberFormatException nfe) {
+                throw FormatException.getFormatInstance();
+              }
               break;
             case MACRO_PDF417_OPTIONAL_FIELD_TIME_STAMP:
               ECIStringBuilder timestamp = new ECIStringBuilder();
               codeIndex = numericCompaction(codewords, codeIndex + 1, timestamp);
-              resultMetadata.setTimestamp(Long.parseLong(timestamp.toString()));
+              try {
+                resultMetadata.setTimestamp(Long.parseLong(timestamp.toString()));
+              } catch (NumberFormatException nfe) {
+                throw FormatException.getFormatInstance();
+              }
               break;
             case MACRO_PDF417_OPTIONAL_FIELD_CHECKSUM:
               ECIStringBuilder checksum = new ECIStringBuilder();
               codeIndex = numericCompaction(codewords, codeIndex + 1, checksum);
-              resultMetadata.setChecksum(Integer.parseInt(checksum.toString()));
+              try {
+                resultMetadata.setChecksum(Integer.parseInt(checksum.toString()));
+              } catch (NumberFormatException nfe) {
+                throw FormatException.getFormatInstance();
+              }
               break;
             case MACRO_PDF417_OPTIONAL_FIELD_FILE_SIZE:
               ECIStringBuilder fileSize = new ECIStringBuilder();
               codeIndex = numericCompaction(codewords, codeIndex + 1, fileSize);
-              resultMetadata.setFileSize(Long.parseLong(fileSize.toString()));
+              try {
+                resultMetadata.setFileSize(Long.parseLong(fileSize.toString()));
+              } catch (NumberFormatException nfe) {
+                throw FormatException.getFormatInstance();
+              }
               break;
             default:
               throw FormatException.getFormatInstance();
@@ -257,8 +273,10 @@ final class DecodedBitStreamParser {
         // do not include terminator
         optionalFieldsLength--;
       }
-      resultMetadata.setOptionalData(
-          Arrays.copyOfRange(codewords, optionalFieldsStart, optionalFieldsStart + optionalFieldsLength));
+      if (optionalFieldsLength > 0) {
+        resultMetadata.setOptionalData(Arrays.copyOfRange(codewords,
+            optionalFieldsStart, optionalFieldsStart + optionalFieldsLength));
+      }
     }
 
     return codeIndex;
@@ -319,6 +337,9 @@ final class DecodedBitStreamParser {
           case ECI_CHARSET:
             subMode = decodeTextCompaction(textCompactionData, byteCompactionData, index, result, subMode);
             result.appendECI(codewords[codeIndex++]);
+            if (codeIndex > codewords[0]) {
+              throw FormatException.getFormatInstance();
+            }
             textCompactionData = new int[(codewords[0] - codeIndex) * 2];
             byteCompactionData = new int[(codewords[0] - codeIndex) * 2];
             index = 0;
@@ -547,14 +568,14 @@ final class DecodedBitStreamParser {
                                     int codeIndex,
                                     ECIStringBuilder result) throws FormatException {
     boolean end = false;
-    
+
     while (codeIndex < codewords[0] && !end) {
       //handle leading ECIs
       while (codeIndex < codewords[0] && codewords[codeIndex] == ECI_CHARSET) {
         result.appendECI(codewords[++codeIndex]);
         codeIndex++;
       }
-      
+
       if (codeIndex >= codewords[0] || codewords[codeIndex] >= TEXT_COMPACTION_MODE_LATCH) {
         end = true;
       } else {
@@ -564,7 +585,7 @@ final class DecodedBitStreamParser {
         do {
           value = 900 * value + codewords[codeIndex++];
           count++;
-        } while (count < 5 && 
+        } while (count < 5 &&
                  codeIndex < codewords[0] &&
                  codewords[codeIndex] < TEXT_COMPACTION_MODE_LATCH);
         if (count == 5 && (mode == BYTE_COMPACTION_MODE_LATCH_6 ||
